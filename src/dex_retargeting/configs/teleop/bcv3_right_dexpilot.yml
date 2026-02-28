@@ -1,0 +1,114 @@
+# retargeting:
+#   type: vector
+#   urdf_path: bcv3/bcv3_right.urdf
+
+#   target_joint_names: [ 
+#     'right_thumb_CMP_joint', 'right_thumb_CMR_joint', 'right_thumb_MCP_joint', 'right_thumb_PIP_joint', 'right_thumb_DIP_joint',
+#     'right_index_MPR_joint', 'right_index_MCP_joint', 'right_index_PIP_joint', 'right_index_DIP_joint',
+#     'right_middle_MPR_joint', 'right_middle_MCP_joint', 'right_middle_PIP_joint', 'right_middle_DIP_joint',
+#     'right_ring_MPR_joint', 'right_ring_MCP_joint', 'right_ring_PIP_joint', 'right_ring_DIP_joint',
+#     'right_little_MPR_joint', 'right_little_MCP_joint', 'right_little_PIP_joint', 'right_little_DIP_joint'
+#   ]
+  
+#   # 起点 Link (共 15 条向量)
+#   target_origin_link_names: [ 
+#     # 拇指：腕->MCP, MCP->PIP, PIP->Tip
+#     "base_link", "right_thumb_MCP_Link", "right_thumb_PIP_Link",
+#     # 食指：腕->MCP, MCP->PIP, PIP->Tip
+#     "base_link", "right_index_MCP_Link", "right_index_PIP_Link",
+#     # 中指：腕->MCP, MCP->PIP, PIP->Tip
+#     "base_link", "right_middle_MCP_Link", "right_middle_PIP_Link",
+#     # 无名指：腕->MCP, MCP->PIP, PIP->Tip
+#     "base_link", "right_ring_MCP_Link", "right_ring_PIP_Link",
+#     # 小指：腕->MCP, MCP->PIP, PIP->Tip
+#     "base_link", "right_little_MCP_Link", "right_little_PIP_Link"
+#   ]
+  
+#   # 终点 Link (必须和上面一一对应)
+#   target_task_link_names: [ 
+#     "right_thumb_MCP_Link", "right_thumb_PIP_Link", "right_thumb_tip_Link",
+#     "right_index_MCP_Link", "right_index_PIP_Link", "right_index_tip_Link",
+#     "right_middle_MCP_Link", "right_middle_PIP_Link", "right_middle_tip_Link",
+#     "right_ring_MCP_Link", "right_ring_PIP_Link", "right_ring_tip_Link",
+#     "right_little_MCP_Link", "right_little_PIP_Link", "right_little_tip_Link"
+#   ]
+  
+#   scaling_factor: 1.0
+
+#   # 人手关键点对应的索引 
+#   target_link_human_indices: [ 
+#     # 起点索引
+#     [ 0, 2, 3,   0, 5, 6,   0, 9, 10,   0, 13, 14,   0, 17, 18 ], 
+#     # 终点索引
+#     [ 2, 3, 4,   5, 6, 8,   9, 10, 12,  13, 14, 16,  17, 18, 20 ]  
+#   ]
+
+#   low_pass_alpha: 0.2
+
+
+
+
+
+#########################################################################################################
+retargeting:
+  type: vector
+  urdf_path: bcv3/bcv3_right.urdf
+
+  # 保持所有 21 个关节都在列表里，这样 Python 代码才能通过索引找到它们
+  target_joint_names: [ 
+    'right_thumb_CMP_joint', 'right_thumb_CMR_joint', 'right_thumb_MCP_joint', 'right_thumb_PIP_joint', 'right_thumb_DIP_joint',
+    'right_index_MPR_joint', 'right_index_MCP_joint', 'right_index_PIP_joint', 'right_index_DIP_joint',
+    'right_middle_MPR_joint', 'right_middle_MCP_joint', 'right_middle_PIP_joint', 'right_middle_DIP_joint',
+    'right_ring_MPR_joint', 'right_ring_MCP_joint', 'right_ring_PIP_joint', 'right_ring_DIP_joint',
+    'right_little_MPR_joint', 'right_little_MCP_joint', 'right_little_PIP_joint', 'right_little_DIP_joint'
+  ]
+  
+  target_origin_link_names: [ 
+    # === 拇指核心约束 ===
+    "base_link",            # 1. 腕 -> MCP (控制大鱼际旋转)
+    "base_link",            # 2. 腕 -> Tip (控制整体指向)
+    
+    # === [关键] 对指约束 ===
+    # 从 食指根部 指向 拇指尖
+    # 迫使拇指弯曲去触碰掌心
+    "right_index_MCP_Link", 
+
+    # === 其他四指 (常规配置) ===
+    "base_link", "right_index_MCP_Link", "right_index_PIP_Link",
+    "base_link", "right_middle_MCP_Link", "right_middle_PIP_Link",
+    "base_link", "right_ring_MCP_Link", "right_ring_PIP_Link",
+    "base_link", "right_little_MCP_Link", "right_little_PIP_Link"
+  ]
+  
+  target_task_link_names: [ 
+    # === 拇指对应 ===
+    "right_thumb_MCP_Link", # 1. 对应 腕->MCP
+    "right_thumb_tip_Link", # 2. 对应 腕->Tip
+    "right_thumb_tip_Link", # 3. 对应 食指MCP->ThumbTip
+    
+    # === 其他四指 ===
+    "right_index_MCP_Link", "right_index_PIP_Link", "right_index_tip_Link",
+    "right_middle_MCP_Link", "right_middle_PIP_Link", "right_middle_tip_Link",
+    "right_ring_MCP_Link", "right_ring_PIP_Link", "right_ring_tip_Link",
+    "right_little_MCP_Link", "right_little_PIP_Link", "right_little_tip_Link"
+  ]
+  
+  # MediaPipe索引: 0腕, 4拇指尖, 5食指根部
+  target_link_human_indices: [ 
+    # 起点索引
+    [ 
+      0, 0, 5,       # 拇指：0->2, 0->4, 【5 -> 4】
+      0, 5, 6,   0, 9, 10,   0, 13, 14,   0, 17, 18 
+    ], 
+    
+    # 终点索引
+    [ 
+      2, 4, 4,       # 拇指：终点索引 (MediaPipe 4 是指尖)
+      5, 6, 8,   9, 10, 12,  13, 14, 16,  17, 18, 20 
+    ]  
+  ]
+
+  scaling_factor: 1.1
+  
+  # 滤波系数：越小越平滑但延迟越高
+  low_pass_alpha: 0.2

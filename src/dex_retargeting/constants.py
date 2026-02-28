@@ -29,7 +29,7 @@ class RobotName(enum.Enum):
     ability = enum.auto()
     inspire = enum.auto()
     panda = enum.auto()
-
+    bcv3 = enum.auto()
 
 class RetargetingType(enum.Enum):
     vector = enum.auto()  # For teleoperation, no finger closing prior
@@ -52,6 +52,7 @@ ROBOT_NAME_MAP = {
     RobotName.ability: "ability_hand",
     RobotName.inspire: "inspire_hand",
     RobotName.panda: "panda_gripper",
+    RobotName.bcv3: "bcv3",
 }
 
 ROBOT_NAMES = list(ROBOT_NAME_MAP.keys())
